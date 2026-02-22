@@ -1,0 +1,57 @@
+{
+  "name": "@coloop-ai/incantations",
+  "version": "0.1.0",
+  "description": "React for prompts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Genei-Ltd/incantations.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Genei-Ltd/incantations/issues"
+  },
+  "homepage": "https://github.com/Genei-Ltd/incantations#readme",
+  "keywords": [],
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "tsdown --config tsdown.config.ts",
+    "format": "prettier --check .",
+    "format:write": "prettier --write .",
+    "lint": "eslint .",
+    "prepublishOnly": "npm run tc && npm run lint && npm run test -- --run && npm run build",
+    "tc": "tsc -p tsconfig.json --pretty --noEmit",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^10.0.0",
+    "globals": "^15.0.0",
+    "prettier": "^3.0.0",
+    "tsdown": "~0.18.0",
+    "typescript": "^5.9.3",
+    "vitest": "^2.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  }
+}
