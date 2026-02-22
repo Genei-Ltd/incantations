@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { render, List, Item, isElement } from '../src/index'
+import {
+  render,
+  List,
+  Item,
+  isElement,
+  markdownRenderer,
+  xmlRenderer,
+} from '../src/index'
 
 describe('render', () => {
   describe('intrinsic elements', () => {
@@ -17,9 +24,9 @@ describe('render', () => {
       )
     })
 
-    it('renders boolean true attributes as bare names', () => {
+    it('renders boolean true attributes as key="true"', () => {
       expect(render(<section important>text</section>)).toBe(
-        '<section important>\ntext\n</section>',
+        '<section important="true">\ntext\n</section>',
       )
     })
 
@@ -198,6 +205,50 @@ describe('render', () => {
         '<system>\nYou are a helpful assistant.\nAlways be concise.\n</system>',
       )
     })
+  })
+})
+
+describe('render options', () => {
+  it('uses xmlRenderer by default', () => {
+    const result = render(<system>hello</system>)
+    expect(result).toBe('<system>\nhello\n</system>')
+  })
+
+  it('accepts explicit renderer in options', () => {
+    const result = render(<system>hello</system>, {
+      renderer: markdownRenderer,
+    })
+    expect(result).toBe('## System\n\nhello')
+  })
+
+  it('infers anthropic/xml from claude model', () => {
+    const result = render(<system>hello</system>, {
+      model: 'claude-sonnet-4-20250514',
+    })
+    expect(result).toBe('<system>\nhello\n</system>')
+  })
+
+  it('infers openai/markdown from gpt model', () => {
+    const result = render(<system>hello</system>, { model: 'gpt-4o' })
+    expect(result).toBe('## System\n\nhello')
+  })
+
+  it('uses provider to select renderer', () => {
+    const result = render(<system>hello</system>, { provider: 'openai' })
+    expect(result).toBe('## System\n\nhello')
+  })
+
+  it('explicit renderer overrides model inference', () => {
+    const result = render(<system>hello</system>, {
+      model: 'gpt-4o',
+      renderer: xmlRenderer,
+    })
+    expect(result).toBe('<system>\nhello\n</system>')
+  })
+
+  it('falls back to xml for unknown model', () => {
+    const result = render(<system>hello</system>, { model: 'llama-3-70b' })
+    expect(result).toBe('<system>\nhello\n</system>')
   })
 })
 

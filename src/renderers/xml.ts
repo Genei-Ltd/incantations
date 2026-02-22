@@ -7,11 +7,13 @@ function formatAttrs(attrs: Record<string, unknown>): string {
 
   const parts: string[] = []
   for (const [key, value] of entries) {
-    if (value === true) {
-      parts.push(key)
-    } else if (value === false || value == null) {
+    if (value === false || value == null) {
       continue
-    } else if (typeof value === 'string' || typeof value === 'number') {
+    } else if (
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      typeof value === 'boolean'
+    ) {
       parts.push(`${key}="${escapeAttrValue(String(value))}"`)
     }
   }
@@ -28,12 +30,12 @@ function escapeAttrValue(value: string): string {
 }
 
 export const xmlRenderer: Renderer = {
-  renderTag(name, attrs, content) {
+  renderTag(name, attrs, content, _depth) {
     const attrStr = formatAttrs(attrs)
     return `<${name}${attrStr}>\n${content}\n</${name}>`
   },
 
-  renderSelfClosingTag(name, attrs) {
+  renderSelfClosingTag(name, attrs, _depth) {
     const attrStr = formatAttrs(attrs)
     return `<${name}${attrStr} />`
   },
@@ -46,5 +48,9 @@ export const xmlRenderer: Renderer = {
     const indent = '  '.repeat(depth)
     const prefix = listPrefix(style, index)
     return `${indent}${prefix}${content}`
+  },
+
+  joinChildren(parts, _depth) {
+    return parts.join('\n')
   },
 }

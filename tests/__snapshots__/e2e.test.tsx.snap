@@ -1,0 +1,141 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`end-to-end prompt rendering > renders for Claude (XML) 1`] = `
+"<system>
+You are an expert TypeScript coding assistant.
+You help developers write clean, idiomatic code.
+Use XML tags like <code>, <explanation>, and <suggestion>
+to structure your responses.
+<safety>
+1. Never generate code that could be used for malicious purposes.
+2. Always consider security best practices.
+3. If unsure, say so rather than guessing.
+</safety>
+<examples>
+<example>
+<user-message>
+How do I read a file?
+</user-message>
+<assistant-message>
+Use the fs module:
+
+import fs from 'fs'
+const data = fs.readFileSync('path', 'utf-8')
+</assistant-message>
+</example>
+</examples>
+</system>
+<context source="repository" date="2026-02-22">
+function greet(name: string) {
+  return \`Hello, \${name}!\`
+}
+</context>
+<context source="documentation">
+TypeScript 5.9 supports the satisfies operator...
+</context>
+<metadata>
+target_model: claude-sonnet-4-20250514
+</metadata>"
+`;
+
+exports[`end-to-end prompt rendering > renders for GPT-4o (Markdown) 1`] = `
+"## System
+
+You are an expert TypeScript coding assistant.
+You help developers write clean, idiomatic code.
+
+Format your response using markdown with clear headers and bullet points.
+
+### Safety
+
+1. Never generate code that could be used for malicious purposes.
+2. Always consider security best practices.
+3. If unsure, say so rather than guessing.
+
+### Examples
+
+#### Example
+
+##### User Message
+
+How do I read a file?
+
+##### Assistant Message
+
+Use the fs module:
+
+import fs from 'fs'
+const data = fs.readFileSync('path', 'utf-8')
+
+## Context
+---
+source: "repository"
+date: "2026-02-22"
+---
+
+function greet(name: string) {
+  return \`Hello, \${name}!\`
+}
+
+## Context
+---
+source: "documentation"
+---
+
+TypeScript 5.9 supports the satisfies operator...
+
+## Metadata
+
+target_model: gpt-4o"
+`;
+
+exports[`end-to-end prompt rendering > renders for Gemini (Markdown, google provider) 1`] = `
+"## System
+
+You are an expert TypeScript coding assistant.
+You help developers write clean, idiomatic code.
+
+Format your response clearly with structured sections.
+
+### Safety
+
+1. Never generate code that could be used for malicious purposes.
+2. Always consider security best practices.
+3. If unsure, say so rather than guessing.
+
+### Examples
+
+#### Example
+
+##### User Message
+
+How do I read a file?
+
+##### Assistant Message
+
+Use the fs module:
+
+import fs from 'fs'
+const data = fs.readFileSync('path', 'utf-8')
+
+## Context
+---
+source: "repository"
+date: "2026-02-22"
+---
+
+function greet(name: string) {
+  return \`Hello, \${name}!\`
+}
+
+## Context
+---
+source: "documentation"
+---
+
+TypeScript 5.9 supports the satisfies operator...
+
+## Metadata
+
+target_model: gemini-1.5-flash"
+`;

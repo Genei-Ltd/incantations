@@ -8,32 +8,72 @@ import {
 } from '../src/index'
 
 describe('markdownRenderer', () => {
-  it('renders tags as headings', () => {
-    const result = render(<system>Hello</system>, markdownRenderer)
-    expect(result).toBe('## system\n\nHello')
+  it('renders tags as headings with title case', () => {
+    const result = render(<system>Hello</system>, {
+      renderer: markdownRenderer,
+    })
+    expect(result).toBe('## System\n\nHello')
   })
 
-  it('renders tags with attributes', () => {
+  it('converts kebab-case tag names to title case', () => {
+    const result = render(<user-context>content</user-context>, {
+      renderer: markdownRenderer,
+    })
+    expect(result).toBe('## User Context\n\ncontent')
+  })
+
+  it('renders nested tags with increasing heading depth', () => {
+    const result = render(
+      <system>
+        <rules>inner</rules>
+      </system>,
+      { renderer: markdownRenderer },
+    )
+    expect(result).toBe('## System\n\n### Rules\n\ninner')
+  })
+
+  it('renders tags with attributes as YAML frontmatter', () => {
     const result = render(
       <context source="docs">content</context>,
-      markdownRenderer,
+      { renderer: markdownRenderer },
     )
-    expect(result).toBe('## context (source=docs)\n\ncontent')
+    expect(result).toBe(
+      '## Context\n---\nsource: "docs"\n---\n\ncontent',
+    )
+  })
+
+  it('renders multiple attributes as frontmatter block', () => {
+    const result = render(
+      <context source="docs" priority="high">
+        content
+      </context>,
+      { renderer: markdownRenderer },
+    )
+    expect(result).toContain('---\nsource: "docs"\npriority: "high"\n---')
+  })
+
+  it('renders boolean true attributes in frontmatter', () => {
+    const result = render(<section important>content</section>, {
+      renderer: markdownRenderer,
+    })
+    expect(result).toBe(
+      '## Section\n---\nimportant: true\n---\n\ncontent',
+    )
   })
 
   it('renders self-closing separator as ---', () => {
-    const result = render(<separator />, markdownRenderer)
+    const result = render(<separator />, { renderer: markdownRenderer })
     expect(result).toBe('---')
   })
 
   it('renders self-closing hr as ---', () => {
-    const result = render(<hr />, markdownRenderer)
+    const result = render(<hr />, { renderer: markdownRenderer })
     expect(result).toBe('---')
   })
 
-  it('renders other self-closing tags as headings', () => {
-    const result = render(<divider />, markdownRenderer)
-    expect(result).toBe('## divider')
+  it('renders other self-closing tags as bold title case', () => {
+    const result = render(<divider />, { renderer: markdownRenderer })
+    expect(result).toBe('**Divider**')
   })
 
   it('renders numbered lists', () => {
@@ -42,7 +82,7 @@ describe('markdownRenderer', () => {
         <Item>A</Item>
         <Item>B</Item>
       </List>,
-      markdownRenderer,
+      { renderer: markdownRenderer },
     )
     expect(result).toBe('1. A\n2. B')
   })
@@ -53,26 +93,39 @@ describe('markdownRenderer', () => {
         <Item>A</Item>
         <Item>B</Item>
       </List>,
-      markdownRenderer,
+      { renderer: markdownRenderer },
     )
     expect(result).toBe('- A\n- B')
+  })
+
+  it('joins children with double newlines', () => {
+    const result = render(
+      <system>
+        <rules>first</rules>
+        <context>second</context>
+      </system>,
+      { renderer: markdownRenderer },
+    )
+    expect(result).toBe(
+      '## System\n\n### Rules\n\nfirst\n\n### Context\n\nsecond',
+    )
   })
 })
 
 describe('createRenderer', () => {
   it('overrides specific methods', () => {
     const custom = createRenderer({
-      renderTag(name, _attrs, content) {
+      renderTag(name, _attrs, content, _depth) {
         return `[${name}]\n${content}\n[/${name}]`
       },
     })
-    const result = render(<system>Hello</system>, custom)
+    const result = render(<system>Hello</system>, { renderer: custom })
     expect(result).toBe('[system]\nHello\n[/system]')
   })
 
   it('falls back to xml defaults for non-overridden methods', () => {
     const custom = createRenderer({
-      renderTag(name, _attrs, content) {
+      renderTag(name, _attrs, content, _depth) {
         return `--- ${name} ---\n${content}`
       },
     })
@@ -83,7 +136,7 @@ describe('createRenderer', () => {
           <Item>A</Item>
         </List>
       </>,
-      custom,
+      { renderer: custom },
     )
     expect(result).toContain('--- header ---')
     expect(result).toContain('1. A')
@@ -91,14 +144,16 @@ describe('createRenderer', () => {
 
   it('can create a bold-label renderer', () => {
     const custom = createRenderer({
-      renderTag(name, _attrs, content) {
+      renderTag(name, _attrs, content, _depth) {
         return `**${name}:** ${content}`
       },
-      renderSelfClosingTag(name, _attrs) {
+      renderSelfClosingTag(name, _attrs, _depth) {
         return `**${name}**`
       },
     })
-    expect(render(<system>Hello</system>, custom)).toBe('**system:** Hello')
-    expect(render(<separator />, custom)).toBe('**separator**')
+    expect(render(<system>Hello</system>, { renderer: custom })).toBe(
+      '**system:** Hello',
+    )
+    expect(render(<separator />, { renderer: custom })).toBe('**separator**')
   })
 })
